@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandiri SNAP API v1.0.8 - Dual-Perspective Integration & Postman Simulator Canvas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Geist', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['Geist Mono', 'monospace'],
+                    },
+                    colors: {
+                        border: 'hsl(var(--border))',
+                        input: 'hsl(var(--input))',
+                        ring: 'hsl(var(--ring))',
+                        background: 'hsl(var(--background))',
+                        foreground: 'hsl(var(--foreground))',
+                        primary: {
+                            DEFAULT: 'hsl(var(--primary))',
+                            foreground: 'hsl(var(--primary-foreground))',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(var(--secondary))',
+                            foreground: 'hsl(var(--secondary-foreground))',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(var(--destructive))',
+                            foreground: 'hsl(var(--destructive-foreground))',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(var(--muted))',
+                            foreground: 'hsl(var(--muted-foreground))',
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(var(--accent))',
+                            foreground: 'hsl(var(--accent-foreground))',
+                        },
+                        popover: {
+                            DEFAULT: 'hsl(var(--popover))',
+                            foreground: 'hsl(var(--popover-foreground))',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(var(--card))',
+                            foreground: 'hsl(var(--card-foreground))',
+                        },
+                    },
+                    borderRadius: {
+                        lg: 'var(--radius)',
+                        md: 'calc(var(--radius) - 2px)',
+                        sm: 'calc(var(--radius) - 4px)',
+                    },
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --background: 240 10% 3.9%;
+            --foreground: 0 0% 98%;
+            --card: 240 10% 3.9%;
+            --card-foreground: 0 0% 98%;
+            --popover: 240 10% 3.9%;
+            --popover-foreground: 0 0% 98%;
+            --primary: 0 0% 98%;
+            --primary-foreground: 240 5.9% 10%;
+            --secondary: 240 3.7% 15.9%;
+            --secondary-foreground: 0 0% 98%;
+            --muted: 240 3.7% 15.9%;
+            --muted-foreground: 240 5% 64.9%;
+            --accent: 240 3.7% 15.9%;
+            --accent-foreground: 0 0% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 240 3.7% 15.9%;
+            --input: 240 3.7% 15.9%;
+            --ring: 240 4.9% 83.9%;
+            --radius: 0.5rem;
+        }
+
+        body {
+            font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            letter-spacing: -0.011em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .font-mono {
+            font-family: 'Geist Mono', 'JetBrains Mono', monospace;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+
+        /* shadcn Card Pattern */
+        .glass-card {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .glass-card:hover {
+            border-color: hsl(240 3.7% 24%);
+        }
+
+        /* shadcn Dialog / Window Container */
+        .postman-window {
+            background-color: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) + 2px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Gradient Accent */
+        .gold-gradient-text {
+            background: linear-gradient(180deg, #ffffff 0%, #d4d4d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Zinc Color Remapping for shadcn Aesthetic */
+        .bg-slate-950 {
+            background-color: #09090b !important;
+        }
+        .bg-slate-950\/80 {
+            background-color: rgba(9, 9, 11, 0.85) !important;
+        }
+        .bg-slate-900 {
+            background-color: #121215 !important;
+        }
+        .bg-slate-900\/50, .bg-slate-900\/60, .bg-slate-900\/80, .bg-slate-900\/90 {
+            background-color: rgba(18, 18, 21, 0.75) !important;
+        }
+        .bg-slate-800 {
+            background-color: #18181b !important;
+        }
+        .bg-slate-800\/40, .bg-slate-800\/60, .bg-slate-800\/80 {
+            background-color: rgba(24, 24, 27, 0.65) !important;
+        }
+        .border-slate-800, .border-slate-700, .border-slate-700\/80 {
+            border-color: #27272a !important;
+        }
+        .text-slate-400 {
+            color: #a1a1aa !important;
+        }
+        .text-slate-300 {
+            color: #d4d4d8 !important;
+        }
+        .text-slate-200 {
+            color: #e4e4e7 !important;
+        }
+        .text-slate-500 {
+            color: #71717a !important;
+        }
+
+        /* shadcn Header Navigation */
+        header.glass-card {
+            background-color: rgba(9, 9, 11, 0.85) !important;
+            backdrop-filter: blur(12px) !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-top: none !important;
+            border-radius: 0 !important;
+        }
+        header nav a {
+            border-radius: calc(var(--radius) - 2px) !important;
+            border: 1px solid #27272a !important;
+            font-weight: 500 !important;
+            transition: all 0.15s ease !important;
+        }
+        header nav a:hover {
+            background-color: #27272a !important;
+            color: #fafafa !important;
+        }
+        header nav a[href="#checklist"] {
+            background-color: #fafafa !important;
+            color: #09090b !important;
+            border-color: #ffffff !important;
+        }
+        header nav a[href="#checklist"]:hover {
+            background-color: #e4e4e7 !important;
+            color: #09090b !important;
+        }
+
+        /* shadcn Postman Tab triggers */
+        button[id^="tab-"] {
+            border-radius: 0 !important;
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            transition: all 0.15s ease !important;
+        }
+        button[id^="tab-"].border-amber-500 {
+            border-bottom-color: #fafafa !important;
+            color: #fafafa !important;
+            background-color: #18181b !important;
+        }
+
+        /* shadcn Form Inputs & Buttons */
+        input#api-url-bar {
+            background-color: transparent !important;
+            color: #e4e4e7 !important;
+            font-size: 0.75rem !important;
+        }
+        select#response-scenario-select {
+            border-radius: calc(var(--radius) - 2px) !important;
+            border: 1px solid #27272a !important;
+            background-color: #18181b !important;
+            color: #e4e4e7 !important;
+            font-weight: 500 !important;
+            padding: 0.45rem 0.75rem !important;
+            transition: border-color 0.15s ease !important;
+        }
+        select#response-scenario-select:focus {
+            border-color: #52525b !important;
+            outline: none !important;
+        }
+        button.bg-gradient-to-r {
+            background: #fafafa !important;
+            color: #09090b !important;
+            border: 1px solid #ffffff !important;
+            border-radius: calc(var(--radius) - 2px) !important;
+            font-weight: 600 !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.15s ease !important;
+        }
+        button.bg-gradient-to-r:hover {
+            background: #e4e4e7 !important;
+            color: #09090b !important;
+        }
+
+        /* shadcn Code Pre Blocks */
+        pre {
+            background-color: #0c0c0e !important;
+            border: 1px solid #27272a !important;
+            border-radius: calc(var(--radius) - 2px) !important;
+        }
+
+        /* shadcn Table */
+        table thead th {
+            color: #a1a1aa !important;
+            font-weight: 500 !important;
+            font-size: 0.6875rem !important;
+            letter-spacing: 0.05em !important;
+            border-bottom: 1px solid #27272a !important;
+        }
+        table tbody tr {
+            border-bottom: 1px solid #18181b !important;
+            transition: background-color 0.12s ease !important;
+        }
+        table tbody tr:hover {
+            background-color: rgba(39, 39, 42, 0.4) !important;
+        }
+
+        /* shadcn Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-800 px-4 py-4 mb-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-blue-600 flex items-center justify-center font-black text-xl text-white shadow-lg shadow-amber-500/20">
+                    M
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Bank Mandiri <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold border border-amber-500/30">SNAP v1.0.8</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Kanvas Integrasi & Simulator Postman Interactive API</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-2 text-xs font-semibold">
+                <a href="#overview" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Ringkasan</a>
+                <a href="#security" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Keamanan</a>
+                <a href="#simulator" class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 transition">⚡ Postman Simulator</a>
+                <a href="#workflow" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Alur Transaksi</a>
+                <a href="#response-codes" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Response Code</a>
+                <a href="#checklist" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 hover:bg-amber-400 font-bold transition">Checklist Action</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 space-y-12">
+
+        <section id="overview" class="space-y-6">
+            <div class="text-center max-w-3xl mx-auto space-y-3">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">
+                    Panduan Integrasi & Interactive <span class="gold-gradient-text">SNAP Sandbox</span>
+                </h2>
+                <p class="text-sm md:text-base text-slate-300 leading-relaxed">
+                    Menghubungkan arsitektur finansial Bank Mandiri dengan ekosistem aplikasi mitra. Kanvas ini menyelaraskan kepraktisan bisnis dengan detail pengujian API ala Postman.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-amber-500">
+                    <div class="text-xs uppercase font-bold text-slate-400 mb-1">Masa Aktif Token</div>
+                    <div class="text-3xl font-extrabold text-amber-400">15 <span class="text-base font-normal text-slate-300">Menit</span></div>
+                    <p class="text-xs text-slate-400 mt-2">OAuth 2.0 Bearer JWT TTL (900s) untuk akses terenkripsi</p>
+                </div>
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-blue-500">
+                    <div class="text-xs uppercase font-bold text-slate-400 mb-1">Layer Keamanan</div>
+                    <div class="text-3xl font-extrabold text-blue-400">Ganda</div>
+                    <p class="text-xs text-slate-400 mt-2">Asymmetric RSA-256 & Symmetric HMAC-SHA512 Signature</p>
+                </div>
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-emerald-500">
+                    <div class="text-xs uppercase font-bold text-slate-400 mb-1">Jumlah Endpoint API</div>
+                    <div class="text-3xl font-extrabold text-emerald-400">4 <span class="text-base font-normal text-slate-300">Core</span></div>
+                    <p class="text-xs text-slate-400 mt-2">Auth B2B, Inquiry VA, Payment VA, Inquiry Status</p>
+                </div>
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-rose-500">
+                    <div class="text-xs uppercase font-bold text-slate-400 mb-1">Protokol Rekonsiliasi</div>
+                    <div class="text-3xl font-extrabold text-rose-400">Forced OK</div>
+                    <p class="text-xs text-slate-400 mt-2">Penanganan otomatis ketika terjadi timeout server mitra</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="security" class="glass-card rounded-3xl p-6 md:p-8 space-y-8">
+            <div class="border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider mb-1">
+                    <span>🛡️ Securing Financial Data</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white">Arsitektur Keamanan Standard Bank (SNAP 1.0.8)</h3>
+                <p class="text-sm text-slate-300 mt-1">
+                    Sistem keamanan berlapis menjamin kerahasiaan data transaksi serta mencegah manipulasi angka tagihan di tengah jalan (Man-in-the-Middle Attack).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Modul Auth B2B</span>
+                        <span class="text-xs font-mono text-slate-400">/access-token/b2b</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-800/60 p-3 rounded-xl border-l-2 border-amber-400">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase">💼 Perspektif Direksi (Bisnis)</h4>
+                            <p class="text-xs text-slate-300 mt-1">
+                                Seperti surat izin masuk gedung bertingkat yang harus diperbarui tiap 15 menit. Jika ada pihak tak dikenal mencuri token, token tersebut otomatis kadaluarsa sehingga kerugian finansial dapat dicegah.
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border-l-2 border-blue-400">
+                            <h4 class="text-xs font-bold text-blue-400 uppercase">💻 Perspektif Developer (Teknis)</h4>
+                            <p class="text-xs text-slate-300 mt-1">
+                                Memanggil HTTP POST dengan Header <code class="text-amber-300 font-mono">X-CLIENT-KEY</code> & <code class="text-amber-300 font-mono">X-SIGNATURE</code> (SHA256withRSA dari string <code class="text-slate-400 font-mono">ClientID|Timestamp</code> disandikan dengan Private Key Mitra). Menghasilkan Bearer JWT valid 900 detik.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 rounded-2xl p-6 border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">Modul Integritas Pesan</span>
+                        <span class="text-xs font-mono text-slate-400">Header: X-SIGNATURE (HMAC)</span>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="bg-slate-800/60 p-3 rounded-xl border-l-2 border-amber-400">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase">💼 Perspektif Direksi (Bisnis)</h4>
+                            <p class="text-xs text-slate-300 mt-1">
+                                Setiap instruksi transaksi disegel dengan stempel digital tak terlihat. Jika peretas mencoba mengedit nominal dari Rp 10.000 menjadi Rp 1.000, Bank Mandiri akan mendeteksi stempel rusak dan transaksi otomatis ditolak.
+                            </p>
+                        </div>
+                        <div class="bg-slate-800/60 p-3 rounded-xl border-l-2 border-blue-400">
+                            <h4 class="text-xs font-bold text-blue-400 uppercase">💻 Perspektif Developer (Teknis)</h4>
+                            <p class="text-xs text-slate-300 mt-1">
+                                Setiap request transaksi menyertakan signature HMAC_SHA512 menggunakan Client Secret. Format String to Sign: <code class="text-blue-300 font-mono text-[11px]">Method:Url:Token:HexEncode(SHA256(Minify(Body))):Timestamp</code>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4">
+                <div class="lg:col-span-1 bg-slate-900/50 p-5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-white mb-2">Kompleksitas & Overheads Keamanan API</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+                            Perbandingan beban komputasi dan enkripsi antar endpoint SNAP. Auth B2B memerlukan operasi RSA Asimetris yang berat namun berfrekuensi rendah (15 menit sekali).
+                        </p>
+                    </div>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between text-slate-300">
+                            <span>RSA-256 (Asymmetric):</span>
+                            <span class="font-bold text-amber-400">Tinggi (High Security)</span>
+                        </div>
+                        <div class="flex justify-between text-slate-300">
+                            <span>HMAC-SHA512 (Symmetric):</span>
+                            <span class="font-bold text-blue-400">Cepat (High Speed)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="chart-container">
+                        <canvas id="securityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="simulator" class="space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider mb-1">
+                        <span>⚡ Interactive API Testing Lab</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Simulation Postman Client - SNAP Mandiri v1.0.8</h3>
+                </div>
+                <p class="text-xs text-slate-400 max-w-md">
+                    Uji coba langsung payload JSON, HTTP Header, dan skenario response (Sukses vs Error) untuk seluruh endpoint Virtual Account Mandiri.
+                </p>
+            </div>
+
+            <div class="postman-window rounded-2xl overflow-hidden border border-slate-700/80">
+
+                <div class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+                        <span class="ml-2 text-xs font-mono text-slate-400 font-semibold">Postman - Mandiri SNAP API Sandbox (v1.0.8)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs">
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono text-[11px]">Env: Sandbox Mandiri</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/90 border-b border-slate-800 flex overflow-x-auto text-xs font-mono custom-scrollbar">
+                    <button id="tab-auth" onclick="switchEndpoint('auth')" class="px-4 py-3 border-b-2 border-amber-500 text-amber-400 bg-slate-800/80 font-bold flex items-center gap-2 transition whitespace-nowrap">
+                        <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">POST</span>
+                        1. Auth B2B Token
+                    </button>
+                    <button id="tab-inquiry" onclick="switchEndpoint('inquiry')" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
+                        <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">POST</span>
+                        2. Inquiry VA
+                    </button>
+                    <button id="tab-payment" onclick="switchEndpoint('payment')" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
+                        <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">POST</span>
+                        3. Payment VA Callback
+                    </button>
+                    <button id="tab-status" onclick="switchEndpoint('status')" class="px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
+                        <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px]">POST</span>
+                        4. Inquiry Status
+                    </button>
+                </div>
+
+                <div class="p-4 bg-slate-900/60 border-b border-slate-800 flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+                    <div class="flex items-center bg-slate-950 rounded-xl border border-slate-700/80 overflow-hidden flex-1 font-mono text-xs">
+                        <span class="bg-amber-500/20 text-amber-400 font-bold px-3 py-2 border-r border-slate-700/80">POST</span>
+                        <input id="api-url-bar" type="text" readonly class="bg-transparent text-slate-200 px-3 py-2 w-full focus:outline-none" value="https://sandbox.bankmandiri.co.id/snap/v1.0.8/access-token/b2b">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="runPostmanSimulation()" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition active:scale-95">
+                            <span>⚡ Send Request</span>
+                        </button>
+                        <select id="response-scenario-select" onchange="runPostmanSimulation()" class="bg-slate-800 text-slate-300 border border-slate-700 rounded-xl px-3 py-2 text-xs focus:outline-none font-semibold">
+                            <option value="success">Status: 200 OK (Sukses)</option>
+                            <option value="error">Status: Error Scenario</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-800 bg-slate-950">
+
+                    <div class="p-4 space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Request Payload & Headers</span>
+                            <span class="text-[10px] text-slate-400 font-mono">Content-Type: application/json</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span class="text-[11px] font-bold text-amber-400 font-mono uppercase">Headers HTTP</span>
+                            <pre id="request-headers-view" class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto custom-scrollbar">X-CLIENT-KEY: 2901928301923891
+X-SIGNATURE: eyJhbGciOiJSUzI1NiIs...
+X-TIMESTAMP: 2026-09-18T10:15:30+07:00
+Content-Type: application/json</pre>
+                        </div>
+
+                        <div class="space-y-2">
+                            <span class="text-[11px] font-bold text-amber-400 font-mono uppercase">Request Body (JSON)</span>
+                            <pre id="request-body-view" class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 overflow-x-auto custom-scrollbar h-48">{
+  "grantType": "client_credentials",
+  "additionalInfo": {}
+}</pre>
+                        </div>
+                    </div>
+
+                    <div class="p-4 space-y-4 bg-slate-950/80">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Response Preview</span>
+                                <span id="response-status-badge" class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">200 OK</span>
+                            </div>
+                            <span id="response-time-badge" class="text-[10px] text-slate-400 font-mono">Time: 42 ms</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px] font-bold text-blue-400 font-mono uppercase">Response Body (JSON)</span>
+                                <span class="text-[10px] text-slate-500 font-mono">Format: SNAP RFC 7807</span>
+                            </div>
+                            <pre id="response-body-view" class="bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-blue-300 overflow-x-auto custom-scrollbar h-64">{
+  "responseCode": "2007300",
+  "responseMessage": "Successful",
+  "accessToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "tokenType": "BearerToken",
+  "expiresIn": "900"
+}</pre>
+                        </div>
+
+                        <div id="response-explanation-box" class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-xs text-slate-300">
+                            <span class="font-bold text-amber-400 block mb-1">💡 Penjelasan Teknis & Bisnis Endpoint:</span>
+                            <p id="endpoint-desc-text" class="text-slate-400 text-[11px]">
+                                Endpoint ini memverifikasi identitas mitra dengan Asymmetric Signature SHA256withRSA. Setelah sukses, server mengembalikan JWT Access Token yang berlaku 15 menit.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <section id="workflow" class="space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-2">
+                <h3 class="text-2xl md:text-3xl font-bold text-white">Detail Modul Alur Operasional Virtual Account</h3>
+                <p class="text-xs md:text-sm text-slate-400">
+                    Proses real-time dua arah yang menghubungkan nasabah di channel Mandiri (Livin'/ATM) dengan server database mitra.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between border-t-4 border-amber-500">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl">🔍</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 bg-amber-500/20 text-amber-400 rounded-full">Langkah 1</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-white">1. Inquiry VA</h4>
+                            <p class="text-xs font-mono text-amber-400 mt-1">POST /transfer-va/inquiry</p>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-amber-400 block mb-1">💼 Bisnis</span>
+                                Pelanggan mengetik nomor VA. Bank Mandiri bertindak sebagai kurir yang bertanya ke server mitra: "Berapa total yang harus dibayar?"
+                            </div>
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-blue-400 block mb-1">💻 Teknis</span>
+                                Mandiri panggil API Inquiry. Sistem mitra wajib merespon dengan `totalAmount`, `virtualAccountName`, & `billDetails` dalam durasi &lt; 2 detik.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 font-mono">
+                        RC Sukses: 2002400 | Code: 4042401 (Not Found)
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between border-t-4 border-emerald-500">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl">💳</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 bg-emerald-500/20 text-emerald-400 rounded-full">Langkah 2</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-white">2. Payment Request</h4>
+                            <p class="text-xs font-mono text-emerald-400 mt-1">POST /transfer-va/payment</p>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-amber-400 block mb-1">💼 Bisnis</span>
+                                Setelah pelanggan klik "Bayar" dan uang terpotong di bank, Mandiri mengabari mitra: "Uang sudah diterima, mohon laskan pesanan."
+                            </div>
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-blue-400 block mb-1">💻 Teknis</span>
+                                Callback masuk ke server mitra. Simpan `referenceNo`, validasi `paidAmount`, dan update status transaksi di database internal.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 font-mono">
+                        RC Sukses: 2002500 | Forced OK: 5002500
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between border-t-4 border-blue-500">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl">🔄</span>
+                            <span class="text-xs font-extrabold px-2.5 py-1 bg-blue-500/20 text-blue-400 rounded-full">Langkah 3</span>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-white">3. Inquiry Status</h4>
+                            <p class="text-xs font-mono text-blue-400 mt-1">POST /transfer-va/status</p>
+                        </div>
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-amber-400 block mb-1">💼 Bisnis</span>
+                                Jika koneksi sempat terputus dan ragu apakah uang sudah masuk atau belum, mitra bisa menanyakan ulang status resmi pembayaran ke Mandiri.
+                            </div>
+                            <div class="p-3 bg-slate-900/90 rounded-xl">
+                                <span class="font-bold text-blue-400 block mb-1">💻 Teknis</span>
+                                Mitra panggil API Status membawa `inquiryRequestId`. Mengembalikan status `00` (Sukses) atau `06` (Reversal/Gagal).
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-500 font-mono">
+                        RC Sukses: 2002600 | Code: 4042601 (Not Found)
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="glass-card rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 max-w-md">
+                        <h4 class="text-lg font-bold text-white">Alokasi Budget Toleransi Waktu (Latency Budget)</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">
+                            Proses Inquiry dan Payment Virtual Account memerlukan respon yang sangat cepat agar pelanggan tidak mengalami kebingungan (timeout) pada layar aplikasi perbankan.
+                        </p>
+                        <div class="flex items-center gap-4 text-xs font-semibold pt-2">
+                            <span class="flex items-center gap-1 text-emerald-400"><span>●</span> Target API &lt; 1.5s</span>
+                            <span class="flex items-center gap-1 text-rose-400"><span>●</span> Timeout Limit 5.0s</span>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/2">
+                        <div class="chart-container">
+                            <canvas id="latencyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="response-codes" class="glass-card rounded-3xl p-6 md:p-8 space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <div class="flex items-center gap-2 text-rose-400 font-bold text-xs uppercase tracking-wider mb-1">
+                        <span>📊 Error Management & Standardized RC</span>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Matriks Response Code (RC) SNAP Mandiri</h3>
+                </div>
+                <p class="text-xs text-slate-400 max-w-md">
+                    Setiap transaksi mengembalikan Response Code 7 digit yang memetakan status keberhasilan, kesalahan format data, maupun masalah pada server.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-4">
+                        <h4 class="text-sm font-bold text-white">Distribusi Kode Status Sistem</h4>
+                        <div class="chart-container" style="height: 240px;">
+                            <canvas id="responseDistributionChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1.5">
+                        <div class="font-bold flex items-center gap-1">⚠️ Aturan Khusus Forced OK Mandiri</div>
+                        <p class="text-[11px] text-amber-200/80 leading-relaxed">
+                            Jika server mitra mengalami error (RC 5002500 / 5002501) atau Time Out (RC 5042500) saat *Payment Request*, Bank Mandiri akan **tetap menganggap transaksi sukses (Forced OK)** karena uang nasabah sudah dipotong. Mitra WAJIB menyediakan mekanisme rekonsiliasi manual/otomatis.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-slate-900/80 rounded-2xl p-4 border border-slate-800 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 uppercase text-[10px] tracking-wider">
+                                    <th class="p-3">HTTP</th>
+                                    <th class="p-3">Response Code</th>
+                                    <th class="p-3">Response Message</th>
+                                    <th class="p-3">Penjelasan Bisnis & Teknis</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-emerald-400 font-bold">200</td>
+                                    <td class="p-3 font-mono text-emerald-400">2002400 / 2002500</td>
+                                    <td class="p-3 font-semibold text-white">Successful</td>
+                                    <td class="p-3 text-slate-400">Transaksi Inquiry / Payment berhasil diproses penuh.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-amber-400 font-bold">400</td>
+                                    <td class="p-3 font-mono text-amber-400">4002401 / 4002501</td>
+                                    <td class="p-3">Invalid Field Format</td>
+                                    <td class="p-3 text-slate-400">Format data request salah (misal: tanggal tidak ISO-8601).</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-amber-400 font-bold">401</td>
+                                    <td class="p-3 font-mono text-amber-400">4017300 / 4012401</td>
+                                    <td class="p-3">Unauthorized / Invalid Token</td>
+                                    <td class="p-3 text-slate-400">Signature atau Access Token kadaluarsa / tidak sah.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-rose-400 font-bold">404</td>
+                                    <td class="p-3 font-mono text-rose-400">4042401</td>
+                                    <td class="p-3">Invalid Bill / VA Not Found</td>
+                                    <td class="p-3 text-slate-400">Nomor VA tidak terdaftar pada database sistem mitra.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-rose-400 font-bold">404</td>
+                                    <td class="p-3 font-mono text-rose-400">4042414 / 4042514</td>
+                                    <td class="p-3">Paid Bill</td>
+                                    <td class="p-3 text-slate-400">Tagihan ini sudah dilunasi sebelumnya.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40">
+                                    <td class="p-3 font-mono text-rose-400 font-bold">409</td>
+                                    <td class="p-3 font-mono text-rose-400">4092400 / 4092500</td>
+                                    <td class="p-3">Conflict</td>
+                                    <td class="p-3 text-slate-400">Duplikasi X-EXTERNAL-ID dalam hari yang sama.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 bg-rose-500/5">
+                                    <td class="p-3 font-mono text-rose-400 font-bold">500</td>
+                                    <td class="p-3 font-mono text-rose-400">5002500 / 5002501</td>
+                                    <td class="p-3 text-rose-300 font-semibold">General Error / Biller Error</td>
+                                    <td class="p-3 text-slate-400"><span class="text-amber-400 font-bold">Mandiri Forced OK:</span> Terjadi error di mitra, uang tetap dipotong.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-800/40 bg-rose-500/5">
+                                    <td class="p-3 font-mono text-rose-400 font-bold">504</td>
+                                    <td class="p-3 font-mono text-rose-400">5042500</td>
+                                    <td class="p-3 text-rose-300 font-semibold">Time Out</td>
+                                    <td class="p-3 text-slate-400"><span class="text-amber-400 font-bold">Mandiri Retry 1x:</span> Jika tetap timeout, Mandiri akan Forced OK.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="checklist" class="space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <h3 class="text-2xl font-bold text-white">Checklist Kesiapan Implementasi (Action Items)</h3>
+                <p class="text-xs text-slate-400 mt-1">Langkah-langkah konkrit yang harus diselesaikan sebelum pengajuan Go-Live Sandbox ke Mandiri SNAP Production.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-amber-500 space-y-4">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span>💼 Tim Bisnis & Operasional</span>
+                    </div>
+                    <ul class="space-y-3 text-xs text-slate-300">
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-amber-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">Mendapatkan Partner Service ID</span>
+                                Memastikan 5-digit kode perusahaan dari Bank Mandiri sudah diterima dan terkonfirmasi.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-amber-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">Standard Penamaan Billing Name</span>
+                                Menentukan format penampakan nama pelanggan dan rincian billDetails pada layar Livin' / ATM Mandiri.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-amber-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">SOP Rekonsiliasi Transaksi (Forced OK)</span>
+                                Menyiapkan Prosedur Operasional Standar harian untuk penanganan klaim nasabah akibat kasus timeout / Forced OK.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-blue-500 space-y-4">
+                    <div class="flex items-center gap-2 font-bold text-white text-base">
+                        <span>💻 Tim IT & Developer</span>
+                    </div>
+                    <ul class="space-y-3 text-xs text-slate-300">
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-blue-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">Generate Key Pair (RSA-256)</span>
+                                Membuat Public Key & Private Key (2048-bit), serta melakukan upload Public Key ke portal Mandiri API.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-blue-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">Caching System Token (Redis)</span>
+                                Mengimplementasikan Redis/Memcached untuk menyimpan JWT Access Token agar reusable selama 15 menit.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                            <span class="text-blue-400 font-bold text-base">☐</span>
+                            <div>
+                                <span class="font-bold text-white block">Implementasi HMAC-SHA512 Engine</span>
+                                Membangun modul fungsi hashing yang akurat terhadap urutan string: <code class="text-amber-300 text-[10px] font-mono">Method:Url:Token:MinifiedBody:Timestamp</code>.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto px-4 mt-16 text-center text-xs text-slate-500 space-y-2">
+        <p>Mandiri SNAP Release 1.0.8 Integration Canvas & Postman Simulator Lab &copy; 2026</p>
+        <p>Document Ref: UBP SNAP File Spec v1.0.8 Update.pdf | Strictly Confidential for Internal & Partner Implementation</p>
+    </footer>
+
+    <script>
+        const postmanData = {
+            auth: {
+                url: "https://sandbox.bankmandiri.co.id/snap/v1.0.8/access-token/b2b",
+                headers: "X-CLIENT-KEY: 2901928301923891\nX-SIGNATURE: eyJhbGciOiJSUzI1NiIs...\nX-TIMESTAMP: 2026-09-18T10:15:30+07:00\nContent-Type: application/json",
+                reqBody: "{\n  \"grantType\": \"client_credentials\",\n  \"additionalInfo\": {}\n}",
+                successStatus: "200 OK",
+                successTime: "42 ms",
+                successRes: "{\n  \"responseCode\": \"2007300\",\n  \"responseMessage\": \"Successful\",\n  \"accessToken\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJNYW5kaXJpIi...\",\n  \"tokenType\": \"BearerToken\",\n  \"expiresIn\": \"900\"\n}",
+                errorStatus: "401 Unauthorized",
+                errorTime: "38 ms",
+                errorRes: "{\n  \"responseCode\": \"4017300\",\n  \"responseMessage\": \"Unauthorized. Invalid Client Key or Signature\"\n}",
+                desc: "Endpoint ini memverifikasi identitas mitra dengan Asymmetric Signature (SHA256withRSA). Mengembalikan Bearer JWT Access Token yang harus disimpan (cache) selama 15 menit."
+            },
+            inquiry: {
+                url: "https://sandbox.bankmandiri.co.id/snap/v1.0.8/transfer-va/inquiry",
+                headers: "Authorization: Bearer eyJhbGciOiJSUzI1...\nX-SIGNATURE: 7d8f9e0a1b2c3d4e5f6a...\nX-TIMESTAMP: 2026-09-18T10:16:00+07:00\nX-PARTNER-ID: 88899\nX-EXTERNAL-ID: REQ-INQ-20260918-001\nChannel-ID: 95051",
+                reqBody: "{\n  \"partnerServiceId\": \"88899\",\n  \"customerNo\": \"081234567890\",\n  \"virtualAccountNo\": \"88899081234567890\",\n  \"channelCode\": \"6011\",\n  \"inquiryRequestId\": \"INQ-20260918-99201\"\n}",
+                successStatus: "200 OK",
+                successTime: "115 ms",
+                successRes: "{\n  \"responseCode\": \"2002400\",\n  \"responseMessage\": \"Successful\",\n  \"virtualAccountData\": {\n    \"partnerServiceId\": \"88899\",\n    \"customerNo\": \"081234567890\",\n    \"virtualAccountNo\": \"88899081234567890\",\n    \"virtualAccountName\": \"Budi Santoso\",\n    \"totalAmount\": {\n      \"value\": \"150000.00\",\n      \"currency\": \"IDR\"\n    },\n    \"billDetails\": [\n      {\n        \"billDescription\": \"Pembelian Paket Internet\",\n        \"billAmount\": {\n          \"value\": \"150000.00\",\n          \"currency\": \"IDR\"\n        }\n      }\n    ]\n  }\n}",
+                errorStatus: "404 Not Found",
+                errorTime: "88 ms",
+                errorRes: "{\n  \"responseCode\": \"4042401\",\n  \"responseMessage\": \"Invalid Bill / VA Not Found\"\n}",
+                desc: "Dipanggil saat pelanggan memasukkan nomor VA di Livin'/ATM. Mandiri menanyakan rincian tagihan ke server mitra. Respon wajib mengembalikan totalAmount & virtualAccountName."
+            },
+            payment: {
+                url: "https://sandbox.bankmandiri.co.id/snap/v1.0.8/transfer-va/payment",
+                headers: "Authorization: Bearer eyJhbGciOiJSUzI1...\nX-SIGNATURE: 4a3b2c1d0e9f8a7b6c5d...\nX-TIMESTAMP: 2026-09-18T10:17:15+07:00\nX-PARTNER-ID: 88899\nX-EXTERNAL-ID: REQ-PAY-20260918-088\nChannel-ID: 95051",
+                reqBody: "{\n  \"partnerServiceId\": \"88899\",\n  \"customerNo\": \"081234567890\",\n  \"virtualAccountNo\": \"88899081234567890\",\n  \"virtualAccountName\": \"Budi Santoso\",\n  \"paymentRequestId\": \"PAY-20260918-77102\",\n  \"paidAmount\": {\n    \"value\": \"150000.00\",\n    \"currency\": \"IDR\"\n  },\n  \"referenceNo\": \"MND-20260918-8839120\"\n}",
+                successStatus: "200 OK",
+                successTime: "160 ms",
+                successRes: "{\n  \"responseCode\": \"2002500\",\n  \"responseMessage\": \"Successful\",\n  \"virtualAccountData\": {\n    \"partnerServiceId\": \"88899\",\n    \"customerNo\": \"081234567890\",\n    \"virtualAccountNo\": \"88899081234567890\",\n    \"paymentFlagStatus\": \"00\"\n  }\n}",
+                errorStatus: "500 Internal Error (Forced OK)",
+                errorTime: "5000 ms (Timeout)",
+                errorRes: "{\n  \"responseCode\": \"5002500\",\n  \"responseMessage\": \"General Biller Error (Mandiri Forced OK Recorded)\"\n}",
+                desc: "Callback dari Bank Mandiri memberitahu bahwa uang pelanggan sudah dipotong dan tagihan telah dibayar. Jika server mitra error/timeout, Mandiri mencatat status Forced OK."
+            },
+            status: {
+                url: "https://sandbox.bankmandiri.co.id/snap/v1.0.8/transfer-va/status",
+                headers: "Authorization: Bearer eyJhbGciOiJSUzI1...\nX-SIGNATURE: 9f8e7d6c5b4a3f2e1d0c...\nX-TIMESTAMP: 2026-09-18T10:20:00+07:00\nX-PARTNER-ID: 88899\nX-EXTERNAL-ID: REQ-STS-20260918-301",
+                reqBody: "{\n  \"partnerServiceId\": \"88899\",\n  \"customerNo\": \"081234567890\",\n  \"virtualAccountNo\": \"88899081234567890\",\n  \"inquiryRequestId\": \"INQ-20260918-99201\"\n}",
+                successStatus: "200 OK",
+                successTime: "95 ms",
+                successRes: "{\n  \"responseCode\": \"2002600\",\n  \"responseMessage\": \"Successful\",\n  \"virtualAccountData\": {\n    \"paymentFlagStatus\": \"00\",\n    \"paidAmount\": {\n      \"value\": \"150000.00\",\n      \"currency\": \"IDR\"\n    },\n    \"referenceNo\": \"MND-20260918-8839120\"\n  }\n}",
+                errorStatus: "404 Not Found",
+                errorTime: "72 ms",
+                errorRes: "{\n  \"responseCode\": \"4042601\",\n  \"responseMessage\": \"Transaction Not Found\"\n}",
+                desc: "Fitur audit & rekonsiliasi manual. Digunakan oleh mitra untuk mengecek ulang status pembayaran transaksi tertentu langsung ke core banking Bank Mandiri."
+            }
+        };
+
+        let currentTab = 'auth';
+
+        function switchEndpoint(tabKey) {
+            currentTab = tabKey;
+
+            const tabs = ['auth', 'inquiry', 'payment', 'status'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tabKey) {
+                    btn.className = "px-4 py-3 border-b-2 border-amber-500 text-amber-400 bg-slate-800/80 font-bold flex items-center gap-2 transition whitespace-nowrap";
+                } else {
+                    btn.className = "px-4 py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap";
+                }
+            });
+
+            runPostmanSimulation();
+        }
+
+        function runPostmanSimulation() {
+            const data = postmanData[currentTab];
+            const scenario = document.getElementById('response-scenario-select').value;
+
+            document.getElementById('api-url-bar').value = data.url;
+            document.getElementById('request-headers-view').textContent = data.headers;
+            document.getElementById('request-body-view').textContent = data.reqBody;
+            document.getElementById('endpoint-desc-text').textContent = data.desc;
+
+            const badge = document.getElementById('response-status-badge');
+            const timeBadge = document.getElementById('response-time-badge');
+            const resBody = document.getElementById('response-body-view');
+
+            if (scenario === 'success') {
+                badge.textContent = data.successStatus;
+                badge.className = "px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                timeBadge.textContent = `Time: ${data.successTime}`;
+                resBody.textContent = data.successRes;
+                resBody.className = "bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-300 overflow-x-auto custom-scrollbar h-64";
+            } else {
+                badge.textContent = data.errorStatus;
+                badge.className = "px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                timeBadge.textContent = `Time: ${data.errorTime}`;
+                resBody.textContent = data.errorRes;
+                resBody.className = "bg-slate-900 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-rose-300 overflow-x-auto custom-scrollbar h-64";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const securityCtx = document.getElementById('securityChart').getContext('2d');
+            new Chart(securityCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        ['Auth B2B Token', 'Grant Request'],
+                        ['Inquiry VA', 'Validation Call'],
+                        ['Payment VA', 'Notification Push'],
+                        ['Inquiry Status', 'Reconciliation']
+                    ],
+                    datasets: [
+                        {
+                            label: 'Keamanan Asimetris (RSA-256)',
+                            data: [100, 0, 0, 0],
+                            backgroundColor: '#fbbf24',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Keamanan Simetris (HMAC-SHA512)',
+                            data: [0, 95, 95, 95],
+                            backgroundColor: '#2563eb',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#94a3b8', font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                        return label.join(' ');
+                                    } else {
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            const latencyCtx = document.getElementById('latencyChart').getContext('2d');
+            new Chart(latencyCtx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        ['Client Request', 'Encryption Phase'],
+                        ['Network Latency', 'Mandiri Core'],
+                        ['Partner Server', 'Lookup Database'],
+                        ['Response Hashing', '& Verification']
+                    ],
+                    datasets: [{
+                        label: 'Alokasi Waktu (ms)',
+                        data: [150, 450, 600, 200],
+                        backgroundColor: ['#38bdf8', '#fbbf24', '#34d399', '#818cf8'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                        return label.join(' ');
+                                    } else {
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#94a3b8', font: { size: 10 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            const responseCtx = document.getElementById('responseDistributionChart').getContext('2d');
+            new Chart(responseCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        ['2xx Success', 'Code (200)'],
+                        ['4xx Client Error', '(Format/Auth)'],
+                        ['404 Not Found', '(Bill/VA)'],
+                        ['5xx Server Error', '& Forced OK']
+                    ],
+                    datasets: [{
+                        data: [50, 20, 15, 15],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ec4899', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                        return label.join(' ');
+                                    } else {
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            runPostmanSimulation();
+        });
+    </script>
+</body>
+</html>
